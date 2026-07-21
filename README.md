@@ -23,11 +23,43 @@ solicitudes de presupuesto del formulario de contacto.
 
 ```
 reformas-albacete-mg/
-├── client/     React + Vite + Tailwind (frontend)
-└── server/     Express + MongoDB (API de solicitudes de presupuesto)
+├── client/
+│   ├── src/       React (frontend)
+│   └── api/       Funciones serverless (backend, para despliegue en Vercel)
+└── server/        Express + MongoDB (backend, para despliegue en Render/Railway)
 ```
 
-## Puesta en marcha
+Hay **dos formas de desplegar el backend** — usa la que encaje con tu
+infraestructura, no hace falta usar ambas:
+
+- **`client/api/`** — funciones serverless (`leads.js`, `health.js`), pensadas
+  para desplegar frontend y backend juntos en **Vercel**, como un único
+  proyecto y un único dominio.
+- **`server/`** — servidor Express tradicional, para desplegar en **Render**,
+  **Railway** o cualquier host que ejecute un proceso Node persistente,
+  normalmente junto a un frontend en Netlify.
+
+## Opción A — Todo en Vercel
+
+1. Sube el repo a GitHub (con `client/` y `server/` en la raíz, como ya tienes).
+2. En Vercel: **New Project** → importa el repo → en **Root Directory**
+   selecciona `client`. Vercel detecta automáticamente el framework (Vite)
+   y la carpeta `api/` como funciones serverless — no hace falta configurar
+   build command ni output directory.
+3. En **Environment Variables** añade:
+   - `MONGODB_URI` — tu connection string de MongoDB Atlas.
+   - `ADMIN_KEY` — tu clave para consultar `/api/leads`.
+   - No hace falta `VITE_API_URL`: al estar frontend y backend en el mismo
+     dominio, el formulario ya llama a `/api/leads` en relativo.
+4. Deploy. Prueba el formulario y luego `https://tu-proyecto.vercel.app/api/leads?key=TU_ADMIN_KEY`.
+
+**Limitación a tener en cuenta:** el límite de peticiones en `api/lib/rateLimit.js`
+es *best-effort* — usa memoria del proceso, y en serverless no hay garantía
+de que todas las invocaciones compartan la misma instancia. Para un límite
+estricto en producción con tráfico real, conviene un almacén externo como
+Upstash Redis.
+
+## Opción B — Netlify (frontend) + Render (backend)
 
 ### 1. Backend
 
