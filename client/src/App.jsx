@@ -10,6 +10,7 @@ import FAQ from './components/FAQ'
 import Coverage from './components/Coverage'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
+import Page from './components/page'
 
 export default function App() {
   return (
